@@ -4,8 +4,8 @@ module.exports = {
     // CREATE: Create a new user
     create(req, res) {
         User.create(req.body)
-            .then(User => res.json(User))
-            .catch(err => res.json(err));
+            .then((user) => {res.json(user)})
+            .catch((err) => {res.status(400).json(err);});
     },
     // GETALL: Find all users
     getAll(req, res) {

@@ -4,7 +4,7 @@ import { navigate } from '@reach/router';
 
 const Register = () => {
 
-    const [errors, setErrors] = useState({});
+    const [errors, setErrors] = useState([]);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [email, setEmail] = useState("");
@@ -14,11 +14,13 @@ const Register = () => {
         const newUser = {username, password, email}
         axios
             .post("http://localhost:9000/api/users/create", newUser)
-            .then(res=>{
-                console.log("Response: ",res);
-                navigate("/");
+            .then((res) => {
+                navigate("/users")
             })
-            .catch(err=>setErrors(err.response.data.errors))
+            .catch((err) => {
+                console.log(err);
+                setErrors(err.response.data.errors);
+            });
     }
 
     return(
