@@ -7,11 +7,12 @@ const Register = () => {
     const [errors, setErrors] = useState([]);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [email, setEmail] = useState("");
 
     const createUser = (e) => {
         e.preventDefault()
-        const newUser = {username, password, email}
+        const newUser = {username, password, email, confirmPassword}
         axios
             .post("http://localhost:9000/api/users/create", newUser)
             .then((res) => {
@@ -29,7 +30,7 @@ const Register = () => {
                 <div className="form-group">
                     <label>Email address</label>
                     <input 
-                        type="email" 
+                        type="text" 
                         className="form-control" 
                         placeholder="Enter email"
                         value={email}
@@ -80,8 +81,17 @@ const Register = () => {
                     <label>Confirm Password</label>
                     <input 
                         type="password" 
-                        className="form-control" 
+                        className="form-control"
+                        value={confirmPassword}
+                        onChange={(e) => {
+                            setConfirmPassword(e.target.value)
+                        }}
                     />
+                    {errors.confirmPassword && (
+                        <span className="error-message cap-first-letter">
+                            {errors.confirmPassword?.message}
+                        </span>
+                    )}
                 </div>
                 <button type="submit" className="btn btn-primary">Submit</button>
             </form>

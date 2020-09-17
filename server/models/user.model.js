@@ -1,6 +1,7 @@
 const mongoose = require("mongoose"); //import backend
 const reqErr = "{PATH} is required"; //insert string to error message
-const uniqueValidator = require('mongoose-unique-validator'); //import unique validator
+const uniqueValidator = require("mongoose-unique-validator"); //import unique validator
+const bcrypt = require('bcrypt');
 
 const UserSchema = new mongoose.Schema(
     {
@@ -19,9 +20,25 @@ const UserSchema = new mongoose.Schema(
             type: String,
             required: [true, reqErr],
             unique: true,
+            validate: {
+                validator: val => /^([\w-\.]+@([\w-]+\.)+[\w-]+)?$/.test(val),
+                message: "Please enter a valid email"
+            }
         }
     }, {timestamps: true}
 )
+
+// add this after UserSchema is defined
+UserSchema.virtual("confirmPassword")
+    .get(() => this._confirmPassword)
+    .set(value => (this._confirmPassword = value));
+
+UserSchema.pre("validate", function(next) {
+    if (this.password !== this.confirmPassword) {
+        this.invalidate("confirmPassword", "Password must match confirm password");
+    }
+    next();
+});
 
 UserSchema.plugin(uniqueValidator, {message: "{PATH} is already taken"});
 
