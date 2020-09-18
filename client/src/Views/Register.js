@@ -14,9 +14,12 @@ const Register = () => {
         e.preventDefault()
         const newUser = {username, password, email, confirmPassword}
         axios
-            .post("http://localhost:9000/api/users/create", newUser)
+            .post("http://localhost:9000/api/users/register", newUser, {
+                withCredentials: true,
+            })
             .then((res) => {
-                navigate("/users")
+                console.log(res);
+                navigate("/users");
             })
             .catch((err) => {
                 console.log(err);
@@ -38,6 +41,7 @@ const Register = () => {
                             setEmail(e.target.value)
                         }}
                     />
+                    {/* ?. is called optional chaining, lets you safely try to access keys that might not exist and avoid errors */}
                     {errors?.email && (
                         <span className="error-message cap-first-letter">
                             {errors.email?.message}

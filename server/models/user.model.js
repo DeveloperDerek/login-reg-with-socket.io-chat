@@ -28,17 +28,28 @@ const UserSchema = new mongoose.Schema(
     }, {timestamps: true}
 )
 
-// add this after UserSchema is defined
+// As our UserSchema doesn't contain a field for confirmPassword (and we really wouldn't want to save that to our database) we will need to add in a touch of code to allow us to compare password with it. We can make use of mongoose virtuals—basically fields we don't want to save in MongoDB—to accomplish this. We will chain calls to get and set to the returned virtual object, allowing us to establish both a getter and a setter for the virtual field.
 UserSchema.virtual("confirmPassword")
     .get(() => this._confirmPassword)
     .set(value => (this._confirmPassword = value));
 
+// Next we need to make use of some Middleware to add in another validation. Specifically we will be using the "pre hook" and having it run before validations.
 UserSchema.pre("validate", function(next) {
     if (this.password !== this.confirmPassword) {
         this.invalidate("confirmPassword", "Password must match confirm password");
     }
     next();
 });
+
+// It's recommended to use Bcrypt in an asynchronous way so we will be using it with Promises. The "10" inside the bcrypt.hash() function refers to the number of salt rounds that Bcrypt will use when generating a salt. For our purposes "10" will be a fine value here. As in our previous Middleware we will need to call the "next" function once the Promise is fulfilled.
+UserSchema.pre("save", function(next) {
+    bcrypt.hash(this.password, 10)
+    .then(hash => {
+        this.password = hash;
+        next();
+    });
+});
+
 
 UserSchema.plugin(uniqueValidator, {message: "{PATH} is already taken"});
 

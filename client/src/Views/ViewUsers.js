@@ -1,20 +1,39 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+// import { navigate } from '@reach/router';
 
-const ViewUsers = () => {
+const ViewUsers = (props) => {
 
     const [users, setUsers] = useState([]);
 
+    const getLoggedInUser = () => {
+        axios
+            .get("http://localhost:9000/api/users/loggedin", {
+                withCredentials: true,
+            })
+            .then((res) => console.log(res))
+            .catch(console.log);
+    };
+
     useEffect(() => {
         axios
-            .get("http://localhost:9000/api/users/view")
-            .then((res) => {
-                setUsers(res.data)
+            .get("http://localhost:9000/api/users/view", {
+                withCredentials: true,
             })
-    }, [])
+            .then((res) => {
+                setUsers(res.data);
+                console.log(res);
+            })
+            .catch((err) => {
+                console.log("not authorized");
+                console.log(err.response);
+                // navigate("/");
+            });
+    }, []);
 
     return(
         <div>
+            <button onClick={getLoggedInUser}>Get Logged In User</button>
             <ul>
                 {users.map((item, idx) => {
                     return(
