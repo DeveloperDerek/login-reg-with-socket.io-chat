@@ -65,14 +65,7 @@ module.exports = {
                     .then((passwordIsValid) => {
                         if (passwordIsValid) {
                             const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
-                            res.json({
-                                token,
-                                user: {
-                                    id: user._id,
-                                    username: user.username,
-                                    email: user.email
-                                }
-                            })
+                            res.cookie("usertoken", token, { httpOnly: true }).json({ msg: "response has a cookie"})
                         } else {
                             res.status(400).json({ msg: "invalid login attempt" });
                         }

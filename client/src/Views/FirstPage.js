@@ -17,9 +17,6 @@ const FirstPage = ({ setLoggedIn }) => {
             .post(
                 "http://localhost:9000/api/login",
                 { email, password }, 
-                {
-                    withCredentials: true,
-                }
             )
             .then((res) => {
                 console.log("this is login info");
