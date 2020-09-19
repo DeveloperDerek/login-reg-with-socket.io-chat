@@ -17,9 +17,7 @@ const ViewUsers = (props) => {
 
     useEffect(() => {
         axios
-            .get("http://localhost:9000/api/users/view", {
-                withCredentials: true,
-            })
+            .get("http://localhost:9000/api/users/view")
             .then((res) => {
                 setUsers(res.data);
                 console.log(res);

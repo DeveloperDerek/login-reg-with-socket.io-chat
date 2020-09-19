@@ -9,7 +9,7 @@ module.exports = {
             .then((user) => {res.json(user)})
             .catch((err) => {res.status(400).json(err);});
     },
-    // REGISTER: Register a new user
+    // REGISTER: Register a new user (same function as create)
     register(req, res) {
         const user = new User(req.body);
         user
@@ -64,25 +64,55 @@ module.exports = {
                     .compare(req.body.password, user.password)
                     .then((passwordIsValid) => {
                         if (passwordIsValid) {
-                            res
-                                .cookie(
-                                    "usertoken",
-                                    jwt.sign({ _id: user._id }, process.env.JWT_SECRET),
-                                    {
-                                    httpOnly: true,
-                                    }
-                                )
-                            .json({ msg: "success!" });
+                            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
+                            res.json({
+                                token,
+                                user: {
+                                    id: user._id,
+                                    username: user.username,
+                                    email: user.email
+                                }
+                            })
                         } else {
                             res.status(400).json({ msg: "invalid login attempt" });
                         }
                     })
                     .catch((err) =>
-                    res.status(400).json({ msg: "invalid login attempt" })
+                        res.status(400).json({ msg: "invalid login attempt" })
                     );
                 }
             })
             .catch((err) => res.json(err));
+    },
+
+    //not working .... need to combine with login1
+    login2 (req, res) {
+        const { email, password } = req.body
+        if (!email || !password)
+            return res.status(400).json({ msg: "Not all fields have been entered" })
+        const user = User.findOne({ email : req.body.email })
+        if (!user)
+            return res.status(400).json({ msg: "No account with this email has been registered" })
+        bcrypt
+            .compare(password, user.password)
+            .then((passwordIsValid) => {
+                if (!passwordIsValid) {
+                    return res.status(400).json({ msg: "Invalid credentials" })
+                } else {
+                    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
+                    res.json({
+                        token,
+                        user: {
+                            id: user._id,
+                            username: user.username,
+                            email: user.email
+                        }
+                    })
+                }
+            })
+            .catch((err) =>
+                res.status(400).json({ msg: "invalid login attempt" })
+            );
     },
     // LOGOUT: Remove logged cookies and revoke access
     logout(req, res) {

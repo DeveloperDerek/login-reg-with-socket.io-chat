@@ -1,18 +1,18 @@
 const userController = require("../controllers/user.controller");
-const { authenticate } = require("../config/jwt.config");
+const auth = require("../config/jwt.config");
+const router = require("express").Router();
 
-// app.MONGOOSE_FUNCTION("ROUTE", CONTROLLER_FUNCTION)
-module.exports = (app) => {
-    app.post("/api/users/create", userController.create);
-    app.post("/api/users/register", userController.register);
-    app.get("/api/users/:id", userController.getOne);
-    app.put("/api/users/update/:id", userController.update);
-    app.delete("/api/users/delete/:id", userController.delete);
+router.post("/users/create", userController.create);
+router.post("/users/register", userController.register);
 
-    app.post("/api/login", userController.login);
-    app.post("/api/logout", userController.logout);
+router.post("/login", userController.login);
+router.post("/logout", userController.logout);
 
     //this route has to be authenticated
-    app.get("/api/users/view", authenticate, userController.getAll);
-    app.get("/api/users/loggedin", authenticate, userController.getLoggedInUser);
-};
+router.get("/users/view", auth, userController.getAll);
+router.get("/users/loggedin", auth, userController.getLoggedInUser);
+router.get("/users/id/:id", auth, userController.getOne);
+router.put("/users/update/:id", auth, userController.update);
+router.delete("/users/delete/:id", auth, userController.delete);
+
+module.exports = router;
