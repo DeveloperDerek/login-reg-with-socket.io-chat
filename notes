@@ -173,7 +173,7 @@ Options for Auth in SPAs/APIs
         • sessions are persisted server-side and linked by sess. ID
         • sessionID is singed and stored in a cookie
             - sent via Set-Cookie header
-            - HttpONly, Secure & SameSite flags
+            - HttpOnly, Secure & SameSite flags
             - scoped to the origin with Domain & Path attributes
         • another cookie can hold CSRF token
     Verdict: Sessions are (probably) better suited for web apps and websites

@@ -58,16 +58,21 @@ module.exports = {
         User.findOne({ email: req.body.email })
             .then((user) => {
                 if (user === null) {
-                res.status(400).json({ msg: "invalid login attempt" });
+                res.status(400).json({ msg: "invalid email" });
                 } else {
                 bcrypt
                     .compare(req.body.password, user.password)
                     .then((passwordIsValid) => {
                         if (passwordIsValid) {
-                            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET)
-                            res.cookie("usertoken", token, { httpOnly: true }).json({ msg: "response has a cookie"})
+                            const token = jwt.sign({ _id: user._id }, process.env.JWT_SECRET);
+                            res.cookie(
+                                "usertoken", //name of cookie
+                                token, //data of cookie
+                                { httpOnly: true } //additional flag included in a Set-Cookie HTTP response header. Using it when generating a cookie helps mitigate the risk of client side script accessing the protected cookie. Can't be accessed by javascript
+                            )
+                            .json({ msg: "response has a cookie"})
                         } else {
-                            res.status(400).json({ msg: "invalid login attempt" });
+                            res.status(400).json({ msg: "invalid password" });
                         }
                     })
                     .catch((err) =>
@@ -77,6 +82,7 @@ module.exports = {
             })
             .catch((err) => res.json(err));
     },
+
 
     //not working .... need to combine with login1
     login2 (req, res) {
@@ -108,7 +114,7 @@ module.exports = {
             );
     },
     // LOGOUT: Remove logged cookies and revoke access
-    logout(req, res) {
+    logout2(req, res) {
         res
             .cookie("usertoken", jwt.sign({ _id:"" }, process.env.JWT_SECRET), {
                 httpOnly: true,
@@ -116,8 +122,8 @@ module.exports = {
             })
             .json({ msg: "ok" });
     },
-    logout2(req, res) {
+    logout(req, res) {
         res.clearCookie("usertoken");
-        res.json({ msg: "usertoke cookie cleared" })
+        res.json({ msg: "usertoken cookie cleared" })
     }
 }

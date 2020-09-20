@@ -1,16 +1,19 @@
 const jwt = require("jsonwebtoken");
 
 const auth = (req, res, next) => {
-    const token = req.cookies.usertoken
-    try {   
-        if (!token)
-            return res.status(401).json({ msg: "No authentication token, authorization denied" })
-        const verified = jwt.verify(token, process.env.JWT_SECRET)
-        if (!verified)
-            return res.status(401).json({ msg: "Token verification failed, authorization denied"})
+    const token = req.cookies.usertoken;
+    console.log(token);
+    if (!token)
+        return res.status(401).json({ msg: "No authentication token, authorization denied" })
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        req.user = decoded;
         next();
     } catch (err) {
-        res.status(500).json({ error: err.message });
+        res.status(401).json({verified: false});
+         //Incase of expired jwt or invalid token kill the token and clear the cookie
+        // res.clearCookie("token");
+        // return res.status(400).send(err.message);
     }
 };
 
@@ -18,8 +21,7 @@ module.exports = auth;
 
 // From Neil's GitHub
 // module.exports = {
-//     authenticate(req, res, next) {
-//         console.log("this is jwt info");
+//     auth(req, res, next) {
 //         console.log(req.cookies.usertoken);
 //         jwt.verify(
 //             req.cookies.usertoken,
