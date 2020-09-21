@@ -7,6 +7,7 @@ router.post("/users/register", userController.register);
 
 router.post("/login", userController.login);
 router.post("/logout", userController.logout);
+router.post("/logout2", userController.logout2);
 
 //these route has to be authenticated
 router.get("/users/view", auth, userController.getAll);

@@ -2,6 +2,7 @@ const jwt = require("jsonwebtoken");
 
 const auth = (req, res, next) => {
     const token = req.cookies.usertoken;
+    console.log("token : ")
     console.log(token);
     if (!token)
         return res.status(401).json({ msg: "No authentication token, authorization denied" })
@@ -11,9 +12,9 @@ const auth = (req, res, next) => {
         next();
     } catch (err) {
         res.status(401).json({verified: false});
-         //Incase of expired jwt or invalid token kill the token and clear the cookie
-        // res.clearCookie("token");
-        // return res.status(400).send(err.message);
+        //  Incase of expired jwt or invalid token kill the token and clear the cookie
+        res.clearCookie("token");
+        return res.status(400).send(err.message);
     }
 };
 

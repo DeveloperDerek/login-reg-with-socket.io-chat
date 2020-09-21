@@ -15,7 +15,7 @@ const Login = ({ setLoggedIn }) => {
         e.preventDefault();
         try {
             const logUser = { email, password };
-            const loggingIn = await axios.post(
+            await axios.post(
                 "http://localhost:9000/api/login",
                 logUser,
                 { withCredentials: true, }
