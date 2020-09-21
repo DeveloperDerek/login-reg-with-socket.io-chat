@@ -22,7 +22,7 @@ const ViewUsers = () => {
             })
             .then((res) => {
                 setUsers(res.data);
-                console.log("user data")
+                console.log("all user data")
                 console.log(res);
             })
             .catch((err) => {
