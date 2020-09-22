@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import { navigate } from '@reach/router';
 
-const Login = ({ setLoggedIn }) => {
+const Login = ({ setLoggedIn, socket }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
-
     const registerLink = () => {
         navigate("/register")
     }
@@ -20,7 +19,9 @@ const Login = ({ setLoggedIn }) => {
                 logUser,
                 { withCredentials: true, }
             );
+            // logSocket();
             setLoggedIn();
+            socket.emit("login", email);
             navigate("/users");
         } catch (err) {
             console.log(err);

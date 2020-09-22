@@ -25,7 +25,7 @@ module.exports = {
             .then((users) => res.json(users))
             .catch((err) => res.json(err));
     },
-    // GETLOGGEDINUSER : Find all logged in users
+    // GETLOGGEDINUSER : Find the logged in user
     getLoggedInUser(req, res) {
         const decodedJWT = jwt.decode(req.cookies.usertoken, { complete: true });
         User.findById(decodedJWT.payload._id)

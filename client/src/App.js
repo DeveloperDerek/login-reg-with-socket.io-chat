@@ -2,27 +2,28 @@ import React, { useState, useEffect, useContext } from "react";
 import './App.css';
 import { navigate, Router } from "@reach/router";
 import axios from "axios";
-import UserContext from "./context/UserContext";
+import io from "socket.io-client"
 import ViewUsers from './Views/ViewUsers';
 import Register from './Views/Register';
 import FirstPage from './Views/FirstPage';
+import ChatPage from "./Views/ChatPage";
+import { UserContext } from "./Utils/UserContext";
+
+const socket = io(":9000");
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userData, setUserData] = useState(null);
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loggedUser, setLoggedUser] = useState({});
 
   useEffect(() => {
     axios.get("http://localhost:9000/api/users/loggedin", { withCredentials: true, })
-      .then((res) => {
-        setUserData(res.data);
-        setIsLoggedIn(true);
-        if (userData === null) {
-          navigate("/users");
-        }
-      })
-      .catch(console.log);
-  }, [])
+    .then((res) => {
+      setLoggedUser(res.data);
+      setIsLoggedIn(true);
+    })
+    .catch(console.log);
+  }, ["http://localhost:9000/api/users/loggedin"])
 
   const logout = () => {
     axios
@@ -42,11 +43,14 @@ function App() {
         {isLoggedIn && <button onClick={logout}>Logout</button>}
       </div>
 
-      <Router>
-          <FirstPage path="/" />
-          <Register path="/register" />
-          <ViewUsers path="/users" /> 
-      </Router>
+      <UserContext.Provider value={{ loggedUser, setLoggedUser }}>
+        <Router>
+            <FirstPage path="/" setLoggedIn={() => setIsLoggedIn(true)} socket={socket} />
+            <Register path="/register" />
+            <ViewUsers path="/users" socket={socket} /> 
+            <ChatPage path="/chatpage" socket={socket} />
+        </Router>
+      </UserContext.Provider>
     </>
   );
 }

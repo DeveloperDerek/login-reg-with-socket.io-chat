@@ -1,10 +1,10 @@
 import React from "react";
 import Login from "../Components/Login";
 
-const FirstPage = ({ setLoggedIn }) => {
+const FirstPage = ({ setLoggedIn, socket }) => {
     return (
         <div>
-            <Login setLoggedIn={setLoggedIn} />
+            <Login setLoggedIn={setLoggedIn} socket={socket} />
         </div>
     )
 }

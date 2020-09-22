@@ -25,7 +25,8 @@ const UserSchema = new mongoose.Schema(
                 message: "Please enter a valid email"
             }
         }
-    }, {timestamps: true}
+    }, 
+    {timestamps: true}
 )
 
 // As our UserSchema doesn't contain a field for confirmPassword (and we really wouldn't want to save that to our database) we will need to add in a touch of code to allow us to compare password with it. We can make use of mongoose virtuals—basically fields we don't want to save in MongoDB—to accomplish this. We will chain calls to get and set to the returned virtual object, allowing us to establish both a getter and a setter for the virtual field.

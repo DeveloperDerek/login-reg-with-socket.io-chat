@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { navigate } from '@reach/router';
+import { navigate, Link } from '@reach/router';
 
-const ViewUsers = () => {
-
+const ViewUsers = ({socket}) => {
     const [users, setUsers] = useState([]);
 
     const getLoggedInUser = () => {
@@ -44,6 +43,7 @@ const ViewUsers = () => {
                     )
                 })}
             </ul>
+            <Link to="/chatpage">Click here to chat</Link>
         </div>
     )
 }
