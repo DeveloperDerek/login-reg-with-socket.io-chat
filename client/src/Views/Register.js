@@ -14,7 +14,7 @@ const Register = () => {
         e.preventDefault()
         const newUser = {username, password, email, confirmPassword}
         axios
-            .post("http://localhost:9000/api/users/register", newUser, {
+            .post("http://localhost:9000/api/users/create", newUser, {
                 withCredentials: true,
             })
             .then((res) => {

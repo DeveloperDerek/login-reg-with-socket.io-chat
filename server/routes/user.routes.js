@@ -9,6 +9,8 @@ router.post("/login", userController.login);
 router.post("/logout", userController.logout);
 router.post("/logout2", userController.logout2);
 
+router.post("/addContact/:id", userController.addContact);
+
 //these route has to be authenticated
 router.get("/users/view", auth, userController.getAll);
 router.get("/users/loggedin", auth, userController.getLoggedInUser);
