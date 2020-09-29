@@ -43,10 +43,7 @@ module.exports = {
     },
     // UPDATE: Update one user by id, re-running validators on any changed fields
     update(req, res) {
-        User.findByIdAndUpdate(req.params.id, req.body, {
-            runValidators: true,
-            context: 'query'
-        })
+        User.findByIdAndUpdate(req.params.id, req.body, { runValidators: true, context: 'query' })
             .then((updatedUser) => res.json(updatedUser))
             .catch((err) => res.status(400).json(err));
     },
@@ -115,33 +112,61 @@ module.exports = {
             .then((user) => res.json(user))
             .catch((err) => res.json(err));
     },
-    reqContact1(req, res) {
-        Contact.findOneAndUpdate(
-            { requester: req.params.id, recipient: req.body.id },
+// User1 sends out contact request
+    async requestContact (req, res) {
+        const docA = await Contact.findOneAndUpdate(
+            { requester: req.body.userA, recipient: req.body.userB },
             { $set: { status: 1 }},
             { upsert: true, new: true }
         )
-    },
-    reqContact2(req, res) {
-        Contact.findOneAndUpdate(
-            { recipient: req.body.id, requester: req.params.id },
+        const docB = await Contact.findOneAndUpdate(
+            { recipient: req.body.userA, requester: req.body.userB },
             { $set: { status: 2 }},
             { upsert: true, new: true }
         )
-    },
-    updateUser1(req, res) {
-        User.findOneAndUpdate(
-            { _id: req.params.id },
-            { $push: { contacts: req.body.contactID }}
+        const updateUserA = await User.findOneAndUpdate(
+            { _id: req.body.userA },
+            { $push: { friends: docA._id }}
         )
-    },
-    updateUser2(req, res) {
-        User.findOneAndUpdate(
-            { _id : req.body.id },
-            { $push: { contacts: req.body.contactID }}
+        const updateUserB = await User.findOneAndUpdate(
+            { _id: req.body.userB },
+            { $push: { friends: docB._id }}
         )
+
+        return res.json({msg: "sent request"})
+    },
+// User 2 accepts contact request
+    async acceptContact (req, res) {
+        await Contact.findOneAndUpdate(
+            { requester: req.body.userA, recipient: req.body.userB },
+            { $set: { status: 3 }}
+        )
+        await Contact.findOneAndUpdate(
+            { recipient: req.body.userA, requester: req.body.userB },
+            { $set: { status: 3 }}
+        )
+        return res.json({ msg: "accepted request"})
+    },
+// User 2 rejects contact request
+    async rejectContact(req, res) {
+        const docA = await Contact.findOneAndRemove(
+            { requester: req.body.userA, recipient: req.body.userB }
+        )
+        const docB = await Contact.findOneAndRemove(
+            { requester: req.body.userB, recipient: req.body.userA }
+        )
+        const updateUserA = await User.findOneAndUpdate(
+            { _id: req.body.userA },
+            { $pull: { contacts: docB._id }}
+        )
+        const updateUserB = await User.findOneAndUpdate(
+            { _id: req.body.userB },
+            { $pull: { contacts: docA._id }}
+        )
+        return res.json({ msg: "removed request"})
     }
 }
+
 
 
 

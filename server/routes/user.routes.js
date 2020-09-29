@@ -9,14 +9,12 @@ router.post("/login", userController.login);
 router.post("/logout", userController.logout);
 router.post("/logout2", userController.logout2);
 
-// router.post("/addContact/:id", userController.addContact);
-router.post("/reqContact1/:id", userController.reqContact1);
-router.post("/reqContact2/:id", userController.reqContact2);
-router.post("/updateUser1/:id", userController.updateUser1);
-router.post("/updateUser2/:id", userController.updateUser2);
+router.post("/requestcontact", userController.requestContact);
+router.post("/acceptcontact", userController.acceptContact);
+router.post("/rejectcontact", userController.rejectContact);
 
 //these route has to be authenticated
-router.get("/users/view", auth, userController.getAll);
+router.get("/users/view", userController.getAll);
 router.get("/users/loggedin", auth, userController.getLoggedInUser);
 router.get("/users/id/:id", auth, userController.getOne);
 router.put("/users/update/:id", auth, userController.update);
