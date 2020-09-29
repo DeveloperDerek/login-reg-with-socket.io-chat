@@ -115,32 +115,33 @@ module.exports = {
             .then((user) => res.json(user))
             .catch((err) => res.json(err));
     },
-
-    addContact(req, res) {
-        console.log(req.params.id);
-        console.log(req.body._id);
-
-        User.findById(req.params.id)
+    reqContact1(req, res) {
+        Contact.findOneAndUpdate(
+            { requester: req.params.id, recipient: req.body.id },
+            { $set: { status: 1 }},
+            { upsert: true, new: true }
+        )
+    },
+    reqContact2(req, res) {
+        Contact.findOneAndUpdate(
+            { recipient: req.body.id, requester: req.params.id },
+            { $set: { status: 2 }},
+            { upsert: true, new: true }
+        )
+    },
+    updateUser1(req, res) {
+        User.findOneAndUpdate(
+            { _id: req.params.id },
+            { $push: { contacts: req.body.contactID }}
+        )
+    },
+    updateUser2(req, res) {
+        User.findOneAndUpdate(
+            { _id : req.body.id },
+            { $push: { contacts: req.body.contactID }}
+        )
     }
 }
 
 
-/*      const docA =  Friend.findOneAndUpdate(
-            { requester: UserA, recipient: UserB },
-            { $set: { status: 1 }},
-            { upsert: true, new: true }
-        )
-        const docB = await Friend.findOneAndUpdate(
-            { recipient: UserA, requester: UserB },
-            { $set: { status: 2 }},
-            { upsert: true, new: true }
-        )
-        const updateUserA = await User.findOneAndUpdate(
-            { _id: UserA },
-            { $push: { friends: docA._id }}
-        )
-        const updateUserB = await User.findOneAndUpdate(
-            { _id: UserB },
-            { $push: { friends: docB._id }}
-        )
-*/
+
