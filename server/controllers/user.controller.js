@@ -114,56 +114,72 @@ module.exports = {
     },
 // User1 sends out contact request
     async requestContact (req, res) {
-        const docA = await Contact.findOneAndUpdate(
-            { requester: req.body.userA, recipient: req.body.userB },
-            { $set: { status: 1 }},
-            { upsert: true, new: true }
-        )
-        const docB = await Contact.findOneAndUpdate(
-            { recipient: req.body.userA, requester: req.body.userB },
-            { $set: { status: 2 }},
-            { upsert: true, new: true }
-        )
-        const updateUserA = await User.findOneAndUpdate(
-            { _id: req.body.userA },
-            { $push: { friends: docA._id }}
-        )
-        const updateUserB = await User.findOneAndUpdate(
-            { _id: req.body.userB },
-            { $push: { friends: docB._id }}
-        )
-
-        return res.json({msg: "sent request"})
+        try{
+            const decodedJWT = jwt.decode(req.cookies.usertoken, { complete: true });
+            const loggedUser = await User.findById(decodedJWT.payload._id);
+            const docA = await Contact.findOneAndUpdate(
+                { requester: loggedUser._id, recipient: req.params.id },
+                { $set: { status: 1 }},
+                { upsert: true, new: true }
+            )
+            const docB = await Contact.findOneAndUpdate(
+                { recipient: loggedUser._id, requester: req.params.id },
+                { $set: { status: 2 }},
+                { upsert: true, new: true }
+            )
+            const updateUserA = await User.findOneAndUpdate(
+                { _id: loggedUser._id },
+                { $addToSet: { contacts: docA._id }}
+            )
+            const updateUserB = await User.findOneAndUpdate(
+                { _id: req.params.id },
+                { $addToSet: { contacts: docB._id }}
+            )
+            return res.json({msg: "sent request"})
+        } catch(err) {
+            console.log(err);
+        }
+        
     },
 // User 2 accepts contact request
     async acceptContact (req, res) {
+        const decodedJWT = jwt.decode(req.cookies.usertoken, { complete: true });
+        const loggedUser = await User.findById(decodedJWT.payload._id);
         await Contact.findOneAndUpdate(
-            { requester: req.body.userA, recipient: req.body.userB },
+            { requester: loggedUser._id, recipient: req.params.id },
             { $set: { status: 3 }}
         )
         await Contact.findOneAndUpdate(
-            { recipient: req.body.userA, requester: req.body.userB },
+            { recipient: loggedUser._id, requester: req.params.id },
             { $set: { status: 3 }}
         )
         return res.json({ msg: "accepted request"})
     },
 // User 2 rejects contact request
     async rejectContact(req, res) {
+        const decodedJWT = jwt.decode(req.cookies.usertoken, { complete: true });
+        const loggedUser = await User.findById(decodedJWT.payload._id);
         const docA = await Contact.findOneAndRemove(
-            { requester: req.body.userA, recipient: req.body.userB }
+            { requester: loggedUser._id, recipient: req.params.id }
         )
         const docB = await Contact.findOneAndRemove(
-            { requester: req.body.userB, recipient: req.body.userA }
+            { recipient: loggedUser._id, requester: req.params.id }
         )
         const updateUserA = await User.findOneAndUpdate(
-            { _id: req.body.userA },
-            { $pull: { contacts: docB._id }}
-        )
-        const updateUserB = await User.findOneAndUpdate(
-            { _id: req.body.userB },
+            { _id: loggedUser._id },
             { $pull: { contacts: docA._id }}
         )
+        const updateUserB = await User.findOneAndUpdate(
+            { _id: req.params.id },
+            { $pull: { contacts: docB._id }}
+        )
         return res.json({ msg: "removed request"})
+    },
+// Get contacts
+    findContacts(req, res) {
+        Contact.find()
+            .then((contacts) => res.json(contacts))
+            .catch((err) => res.json(err));
     }
 }
 

@@ -6,6 +6,7 @@ const Login = ({ setLoggedIn, socket }) => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [errorMessage, setErrorMessage] = useState("");
+    
     const registerLink = () => {
         navigate("/register")
     }

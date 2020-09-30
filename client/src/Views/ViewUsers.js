@@ -1,44 +1,110 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import axios from 'axios';
 import { navigate, Link } from '@reach/router';
+import { UserContext } from "../Utils/UserContext";
 
 const ViewUsers = ({socket}) => {
-    const [users, setUsers] = useState([]);
-
-    const getLoggedInUser = () => {
-        axios
-            .get("http://localhost:9000/api/users/loggedin", {
-                withCredentials: true,
-            })
-            .then((res) => console.log(res))
-            .catch(console.log);
-    };
-
+    const {loggedUser, setLoggedUser} = useContext(UserContext);
+    const [users, setUsers] = useState(null);
+    const [contactID, setContactID] = useState("");
+    const [contactz, setContacts] = useState([]);
     useEffect(() => {
-        axios
+        const getLoggedDataAndContacts = async () => {
+            await axios
             .get("http://localhost:9000/api/users/view", {
                 withCredentials: true,
             })
             .then((res) => {
                 setUsers(res.data);
-                console.log("all user data")
-                console.log(res);
             })
-            .catch((err) => {
-                console.log("not authorized");
-                console.log(err.response);
-                navigate("/");
-            });
+
+            await axios
+            .get("http://localhost:9000/api/findcontacts")
+            .then((res) => {
+                setContacts(res.data);
+            })
+        }
+        getLoggedDataAndContacts();
     }, []);
+
+
+    const sendRequest = (e) => {
+        e.preventDefault();
+        // must bring info(stuff) over while posting
+        const stuff = "test"
+        axios
+            .post(`http://localhost:9000/api/requestcontact/${contactID}`, stuff, {
+                withCredentials: true,
+            })
+            .then((res) => console.log(res))
+            .catch(console.log);
+    }
+
+    if (users === null || loggedUser === null) {
+        return (
+            <div>still loading</div>
+        )
+    }
 
     return(
         <div>
-            <button onClick={getLoggedInUser}>Get Logged In User</button>
+            <h1>{loggedUser.username}</h1>
+            <h2>{loggedUser._id}</h2>
+            <h1>TESTING ZONE</h1>
             <ul>
-                {users.map((item, idx) => {
+                {users.map((user, idx) => {
                     return(
                         <li key={idx}>
-                            {item.username}
+                            <h2>{user.username}</h2>
+                            {user.contacts.map((c) => {
+                                return(
+                                    <ul>
+                                        <li>
+                                            {c}
+                                        </li>
+                                    </ul>
+                                )
+                            })}
+                        </li>
+                    )
+                })}
+            </ul>
+            <hr></hr>
+            <hr></hr>
+            <hr></hr>
+            <h1>REQUEST CONTACTS</h1>
+            <ul>
+                {users.map((obj, idx) => {
+                    if(obj._id != loggedUser._id)
+                    return(
+                        <li key={idx}>
+                            {obj.username}
+                            
+                            <input
+                                type="button"
+                                value={obj._id}
+                                onClick={(e) => {
+                                    setContactID(e.target.value);
+                                }}
+                            />
+                            <button onClick={sendRequest}>X</button>
+                        </li>
+                    )
+                })}
+            </ul>
+            <hr></hr>
+            <hr></hr>
+            <hr></hr>
+            <hr></hr>
+            <h1>CONTACTS</h1>
+            <ul>
+                {contactz.map((contact, idx) => {
+                    return(
+                        <li key={idx}>
+                            <h6>{contact._id}</h6>
+                            <h6>{contact.requester}</h6>
+                            <h6>{contact.recipient}</h6>
+                            <h6>{contact.status}</h6>
                         </li>
                     )
                 })}

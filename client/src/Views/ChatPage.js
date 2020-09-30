@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { UserContext } from "../Utils/UserContext";
 
 const ChatPage = ({ socket }) => {
-    const {loggedUser, setLoggedUser} = useContext(UserContext);
+    const {loggedUser} = useContext(UserContext);
     const [currentMessage, setCurrentMessage] = useState("");
     const [currentChatObject, setCurrentChatObject] = useState(null);
 
@@ -11,7 +11,6 @@ const ChatPage = ({ socket }) => {
         socket.on("getMessages", chat => {
             setCurrentChatObject(chat);
         });
-
     // note that we're returning a callback function
     // this ensures that the underlying socket will be closed if App is unmounted
     // this would be more critical if we were creating the socket in a subcomponent

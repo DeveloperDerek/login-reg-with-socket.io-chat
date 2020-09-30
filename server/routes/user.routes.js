@@ -9,15 +9,17 @@ router.post("/login", userController.login);
 router.post("/logout", userController.logout);
 router.post("/logout2", userController.logout2);
 
-router.post("/requestcontact", userController.requestContact);
+router.post("/requestcontact/:id", userController.requestContact);
 router.post("/acceptcontact", userController.acceptContact);
 router.post("/rejectcontact", userController.rejectContact);
+router.get("/findcontacts", userController.findContacts);
 
 //these route has to be authenticated
-router.get("/users/view", userController.getAll);
+router.get("/users/view", auth, userController.getAll);
 router.get("/users/loggedin", auth, userController.getLoggedInUser);
 router.get("/users/id/:id", auth, userController.getOne);
 router.put("/users/update/:id", auth, userController.update);
 router.delete("/users/delete/:id", auth, userController.delete);
+
 
 module.exports = router;
